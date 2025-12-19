@@ -29,6 +29,12 @@
             text-decoration: none;
             cursor: pointer;
         }
+
+        .error {
+            color: red;
+            margin-top: 6px;
+            font-size: 13px;
+        }
     </style>
 </head>
 <body>
@@ -39,7 +45,18 @@
         @csrf
 
         <label>Nama Kelas</label>
-        <input type="text" placeholder="Contoh: XI RPL 1">
+        <!-- PENTING: name="namaKelas" -->
+        <input 
+            type="text" 
+            name="namaKelas" 
+            value="{{ old('namaKelas') }}"
+            placeholder="Contoh: XI RPL 1"
+            required
+        >
+
+        @error('namaKelas')
+            <div class="error">{{ $message }}</div>
+        @enderror
 
         <button type="submit">Simpan</button>
         <a href="{{ route('kelas.index') }}">Kembali</a>
