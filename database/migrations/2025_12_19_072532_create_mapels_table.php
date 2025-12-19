@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('users', function (Blueprint $table) {
+      Schema::create('mapels', function (Blueprint $table) {
         $table->id();
         $table->string('nama');
-        $table->string('email')->unique();
-        $table->string('password');
-        $table->enum('role', ['admin', 'guru'])->default('guru'); // Tambahkan ini
+        $table->string('tingkat_kelas');
+        // Relasi ke Guru (User)
+        $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
         $table->timestamps();
     });
     }
@@ -26,8 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
-        Schema::dropIfExists('sessions');
+        Schema::dropIfExists('mapels');
     }
 };

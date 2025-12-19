@@ -45,4 +45,7 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function mapels() {
+    return $this->hasMany(Mapel::class, 'user_id');
+}
 }
