@@ -9,6 +9,8 @@ use App\Http\Controllers\MapelController;
 use App\Http\Controllers\MateriController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Guru\MapelGuruController;
+use App\Http\Controllers\Guru\ProgressGuruController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -29,10 +31,20 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('kelas', KelasController::class);
 });
 
+
 // Group Guru
 Route::middleware(['auth', 'role:guru'])->prefix('guru')->name('guru.')->group(function () {
     Route::get('/dashboard', [GuruController::class, 'index'])->name('dashboard');
-    Route::resource('materi', MateriController::class);
+    Route::resource('/materi', MateriController::class);
+    Route::get('/mapel', [MapelGuruController::class, 'index'])->name('mapel.index');
+    Route::get('/progress', [ProgressGuruController::class, 'index'])
+        ->name('progress.index');
+
+    Route::get('/progress/{progress}/edit', [ProgressGuruController::class, 'edit'])
+        ->name('progress.edit');
+
+    Route::put('/progress/{progress}', [ProgressGuruController::class, 'update'])
+        ->name('progress.update');
 });
 
 Route::middleware('auth')->group(function () {

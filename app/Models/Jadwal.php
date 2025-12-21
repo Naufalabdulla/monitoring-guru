@@ -2,11 +2,16 @@
 
 namespace App\Models;
 
+
+
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Kelas;
+use App\Models\Mapel;
+use App\Models\User;
 
 class Jadwal extends Model
 {
-   
+
     protected $fillable = [
         'kelas_id',
         'mapel_id',
@@ -20,23 +25,27 @@ class Jadwal extends Model
      * Relasi ke Kelas
      * Satu jadwal milik satu kelas
      */
-    // public function kelas()
-    // {
-    //     return $this->belongsTo(Kelas::class);
-    // }
+    public function kelas()
+    {
+        return $this->belongsTo(Kelas::class);
+    }
 
     // /**
     //  * Relasi ke Mapel
     //  * Satu jadwal milik satu mapel
-    //  */
-    // public function mapel()
-    // {
-    //     return $this->belongsTo(Mapel::class);
-    // }
+    public function mapel()
+    {
+        return $this->belongsTo(Mapel::class);
+    }
 
-    
-    // public function guru()
-    // {
-    //     return $this->belongsTo(Guru::class);
-    // }
+
+    public function guru()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function progresses()
+    {
+        return $this->hasMany(Progress::class);
+    }
 }
