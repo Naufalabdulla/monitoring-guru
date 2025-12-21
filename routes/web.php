@@ -1,6 +1,8 @@
 <?php
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\GuruController;
+use App\Http\Controllers\JadwalController;
+use App\Http\Controllers\KelasController;
 use App\Http\Controllers\MapelController;
 use App\Http\Controllers\MateriController;
 use Illuminate\Support\Facades\Route;
@@ -26,3 +28,6 @@ Route::name('guru.')->prefix('guru')->group(function () {
     // Nama route resource ini akan menjadi guru.materi.index, guru.materi.update, dll
     Route::resource('materi', MateriController::class); 
 });
+
+Route::resource('/jadwal', JadwalController::class);
+Route::resource('/kelas', KelasController::class);

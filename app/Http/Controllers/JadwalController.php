@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Jadwal;
 use App\Models\Kelas;
 use App\Models\Mapel;
-use App\Models\Guru;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class JadwalController extends Controller
@@ -26,14 +26,14 @@ class JadwalController extends Controller
     /**
      * Menampilkan form tambah jadwal
      */
-    // public function create()
-    // {
-    //     return view('jadwal.create', [
-    //         'kelasList' => Kelas::orderBy('namaKelas')->get(),
-    //         'mapelList' => Mapel::orderBy('namaMapel')->get(),
-    //         'guruList'  => Guru::orderBy('nama')->get(),
-    //     ]);
-    // }
+    public function create()
+    {
+        return view('jadwal.create', [
+            'kelasList' => Kelas::orderBy('namaKelas')->get(),
+            'mapelList' => Mapel::orderBy('nama')->get(),
+            // 'guruList'  => User::orderBy('nama')->get(),
+        ]);
+    }
 
     /**
      * Menyimpan jadwal ke database
