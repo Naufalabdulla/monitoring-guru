@@ -12,7 +12,6 @@ class UserSeeder extends Seeder
     {
         // Buat Akun Admin
         User::create([
-<<<<<<< HEAD
             'nama' => 'Administrator',
             'email' => 'admin@gmail.com',
             'password' => Hash::make('password123'),
@@ -34,22 +33,5 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password123'),
             'role' => 'guru',
         ]);
-=======
-        'nama'     => 'Akun Admin',
-        'email'    => 'admin@gmail.com',
-        'password' => Hash::make('password123'),
-        'role'     => 'admin',
-    ]);
-
-    // Buat Akun Guru
-    User::create([
-        'nama'     => 'Akun Guru',
-        'email'    => 'guru@gmail.com',
-        'password' => Hash::make('password123'),
-        'role'     => 'guru',
-    ]);
-
- 
->>>>>>> origin/main
     }
 }
