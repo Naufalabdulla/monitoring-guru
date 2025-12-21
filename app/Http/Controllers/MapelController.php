@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Mapel;
 use App\Models\User;
 use Illuminate\Http\Request;
+<<<<<<< HEAD
 
 class MapelController extends Controller
 {
@@ -19,6 +20,35 @@ class MapelController extends Controller
     }
 
     public function store(Request $request) {
+=======
+use App\Models\Kelas;
+
+class MapelController extends Controller
+{
+    public function index()
+    {
+        $mapels = Mapel::with('guru')->get();
+        // SESUAIKAN: Path view harus ke admin.mapel.index
+        return view('admin.mapel.index', compact('mapels'));
+    }
+
+    public function create()
+    {
+        $gurus = User::where('role', 'guru')->get();
+        $kelas = Kelas::all(); // Ambil semua data dari tabel kelas
+        return view('admin.mapel.create', compact('gurus', 'kelas'));
+    }
+
+    public function edit(Mapel $mapel)
+    {
+        $gurus = User::where('role', 'guru')->get();
+        $kelas = Kelas::all();
+        return view('admin.mapel.edit', compact('mapel', 'gurus', 'kelas'));
+    }
+
+    public function store(Request $request)
+    {
+>>>>>>> origin/main
         $request->validate([
             'nama' => 'required',
             'tingkat_kelas' => 'required',
@@ -30,6 +60,7 @@ class MapelController extends Controller
             'tingkat_kelas' => $request->tingkat_kelas,
             'user_id' => $request->user_id
         ]);
+<<<<<<< HEAD
         
         return redirect()->route('admin.dashboard')->with('success', 'Mapel berhasil ditambah');
     }
@@ -40,6 +71,13 @@ class MapelController extends Controller
         $gurus = User::where('role', 'guru')->get();
         return view('admin.mapel.edit', compact('mapel', 'gurus'));
     }
+=======
+
+        // SESUAIKAN: Tambahkan 'admin.' pada nama route
+        return redirect()->route('admin.dashboard')->with('success', 'Mapel berhasil ditambah');
+    }
+
+>>>>>>> origin/main
 
     public function update(Request $request, Mapel $mapel)
     {
@@ -50,12 +88,24 @@ class MapelController extends Controller
         ]);
 
         $mapel->update($request->all());
+<<<<<<< HEAD
         
         return redirect()->route('admin.dashboard')->with('success', 'Mapel berhasil diupdate');
     }
 
     public function destroy($id) {
         Mapel::destroy($id);
+=======
+
+        // SESUAIKAN: Tambahkan 'admin.' pada nama route
+        return redirect()->route('admin.dashboard')->with('success', 'Mapel berhasil diupdate');
+    }
+
+    // Gunakan Model Binding agar lebih aman dan ringkas
+    public function destroy(Mapel $mapel)
+    {
+        $mapel->delete();
+>>>>>>> origin/main
         return back()->with('success', 'Mapel dihapus');
     }
 }
