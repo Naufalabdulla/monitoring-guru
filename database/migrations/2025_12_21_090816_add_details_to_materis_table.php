@@ -10,20 +10,20 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    Schema::create('kelas', function (Blueprint $table) {
-        $table->id();
-        $table->string('nama'); // Contoh: 10 IPA 1
-        $table->enum('tingkat', ['10', '11', '12']); // Tingkatan kelas
-        $table->timestamps();
-    });
-}
+    {
+        Schema::table('materis', function (Blueprint $table) {
+            $table->text('deskripsi')->nullable()->after('nama');
+        $table->string('file_pendukung')->nullable()->after('deskripsi');
+        });
+    }
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('kelas');
+        Schema::table('materis', function (Blueprint $table) {
+            //
+        });
     }
 };

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Materi extends Model
 {
-    protected $fillable = ['nama', 'mapel_id'];
+    protected $fillable = ['nama', 'mapel_id', 'deskripsi', 'file_pendukung'];
 
     public function mapel()
     {

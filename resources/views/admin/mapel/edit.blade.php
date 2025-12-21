@@ -1,4 +1,6 @@
-<form action="{{ route('mapel.update', $mapel->id) }}" method="POST">
+@extends('layouts.master')
+@section('content')
+<form action="{{ route('admin.mapel.update', $mapel->id) }}" method="POST">
     @csrf
     @method('PUT') <div class="mb-3">
         <label>Nama Mata Pelajaran</label>
@@ -7,3 +9,4 @@
 
     <button type="submit" class="btn btn-primary">Update Mapel</button>
 </form>
+@endsection
