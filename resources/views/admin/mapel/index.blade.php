@@ -7,8 +7,7 @@
     <div class="card-body p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h3 class="fw-bold mb-0">Daftar Mata Pelajaran</h3>
-                <p class="text-muted small">Kelola data mata pelajaran sekolah Anda di sini.</p>
+                <h3 class="fw-bold mb-0">Mata Pelajaran</h3>
             </div>
             <a href="{{ route('admin.mapel.create') }}" class="btn btn-primary px-4 shadow-sm">
                 <i class="bi bi-plus-lg me-2"></i>Tambah Mapel
@@ -27,7 +26,7 @@
                 <thead class="table-light">
                     <tr>
                         <th width="50" class="text-center">No</th>
-                        <th>Nama Mata Pelajaran</th>
+                        <th>Mata Pelajaran</th>
                         <th>Tingkat Kelas</th>
                         <th>Guru Pengampu</th>
                         <th width="150" class="text-center">Aksi</th>

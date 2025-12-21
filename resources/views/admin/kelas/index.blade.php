@@ -14,7 +14,7 @@
                     <th>No</th>
                     <th>Nama Kelas</th>
                     <th>Tingkat</th>
-                    <th class="text-center">Aksi</th>
+                    <th class="text-end pe-4">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -22,8 +22,8 @@
                 <tr>
                     <td>{{ $loop->iteration }}</td>
                     <td class="fw-bold">{{ $k->nama }}</td>
-                    <td><span class="badge bg-secondary">Kelas {{ $k->tingkat }}</span></td>
-                    <td class="text-center">
+                    <td><span class="">Kelas {{ $k->tingkat }}</span></td>
+                    <td class="text-end pe-4">
                         <a href="{{ route('admin.kelas.edit', $k->id) }}" class="btn btn-sm btn-warning text-white">Edit</a>
                         <form action="{{ route('admin.kelas.destroy', $k->id) }}" method="POST" class="d-inline">
                             @csrf @method('DELETE')
