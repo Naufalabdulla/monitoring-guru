@@ -1,33 +1,54 @@
 @extends('layouts.master')
 @section('content')
 
-    <h2>Tambah Jadwal</h2>
+    <h2 class="mb-5">Tambah Jadwal</h2>
 
-    <form action="{{ route('jadwal.store') }}" method="POST">
+    <form action="{{ route('admin.jadwal.store') }}" method="post">
         @csrf
 
-        <label>Hari</label>
-        <select>
-            <option>Senin</option>
-            <option>Selasa</option>
-            <option>Rabu</option>
-            <option>Kamis</option>
-            <option>Jumat</option>
-        </select>
+        <div class="mb-3">
+            <label for="hari" class="form-label">Hari</label>
+            <select class="form-select" name="hari" id="hari" aria-label="Default select example">
+                <option selected>Masukkan Hari</option>
+                <option value="senin">Senin</option>
+                <option value="selasa">Selasa</option>
+                <option value="rabu">Rabu</option>
+                <option value="kamis">Kamis</option>
+                <option value="jumat">Jumat</option>
+            </select>
+        </div>
 
-        <label>Jam</label>
-        <input type="text" placeholder="08:00 - 10:00">
+        <div class="row">
+            <div class="col-6">
+                <label for="jam_mulai" class="form-label">jam mulai</label>
+                <input type="time" name="jam_mulai" id="jam_mulai" class="form-control" placeholder="HH-MM">
+            </div>
+            <div class="col-6">
+                <label for="jam_selesai" class="form-label">jam selesai</label>
+                <input type="time" name="jam_selesai" id="jam_selesai" class="form-control" placeholder="HH-MM">
+            </div>
+            <div class="col-6"><label for="kelas_id">Kelas</label>
+                {{-- <select name="kelas_id" id="kelas_id" class="form-select">
+                    <option selected>-</option>
+                    <option value="10">ipa 10</option>
+                </select> --}}
+            </div>
+            <div class="col-6"><label for="mapel_id">Mata Pelajaran</label>
+                {{-- <select name="mapel_id" id="mapel_id" class="form-select">
+                    <option selected>-</option>
+                    <option value="ipa">ipa</option>
+                </select> --}}
+            </div>
+        </div>
 
-        <label>Kelas</label>
-        <input type="text" placeholder="10 IPA 1">
+        <div class="mb-3">
+            <label for="guru_id" class="form-label">Guru</label>
+            {{-- <select name="guru_id" id="guru_id" class="form-select">
+                <option selected>-</option>
+                <option value="hermawan">hermawan</option>
+            </select> --}}
+        </div>
 
-        <label>Mata Pelajaran</label>
-        <input type="text" placeholder="Biologi">
-
-        <label>Guru</label>
-        <input type="text" placeholder="Pak Budi">
-
-        <button type="submit">Simpan</button>
-        <a href="{{ route('jadwal.index') }}">Kembali</a>
+        <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 @endsection

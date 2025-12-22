@@ -29,7 +29,7 @@ class JadwalController extends Controller
     public function create()
     {
         return view('jadwal.create', [
-            'kelasList' => Kelas::orderBy('namaKelas')->get(),
+            'kelasList' => Kelas::orderBy('nama')->get(),
             'mapelList' => Mapel::orderBy('nama')->get(),
             // 'guruList'  => User::orderBy('nama')->get(),
         ]);
@@ -41,9 +41,9 @@ class JadwalController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'kelas_id'    => 'required|exists:kelas,id',
-            'mapel_id'    => 'required|exists:mapels,id',
-            'guru_id'     => 'required|exists:gurus,id',
+            'kelas_id'    => '',
+            'mapel_id'    => '',
+            'guru_id'     => '',
             'hari'        => 'required|string',
             'jam_mulai'   => 'required|date_format:H:i',
             'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
@@ -52,7 +52,7 @@ class JadwalController extends Controller
         Jadwal::create($validated);
 
         return redirect()
-            ->route('jadwal.index')
+            ->route('admin.jadwal.index')
             ->with('success', 'Jadwal berhasil ditambahkan');
     }
 }
