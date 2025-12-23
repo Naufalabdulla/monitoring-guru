@@ -4,11 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Kelas extends Model
-{
-    protected $table = 'kelas';
+class Kelas extends Model {
+    protected $fillable = ['nama', 'tingkat'];
 
-    protected $fillable = [
-        'namaKelas',
-    ];
+    public function getNama() { return $this->nama; }
+    public function infoKelas() { return "Kelas: $this->nama"; }
 }

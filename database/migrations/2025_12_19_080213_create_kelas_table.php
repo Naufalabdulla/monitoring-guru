@@ -13,7 +13,8 @@ return new class extends Migration
 {
     Schema::create('kelas', function (Blueprint $table) {
         $table->id();
-        $table->string('namaKelas');
+        $table->string('nama'); // Contoh: 10 IPA 1
+        $table->enum('tingkat', ['10', '11', '12']); // Tingkatan kelas
         $table->timestamps();
     });
 }
