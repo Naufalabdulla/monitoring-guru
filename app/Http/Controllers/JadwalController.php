@@ -7,6 +7,7 @@ use App\Models\Kelas;
 use App\Models\Mapel;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\User as AuthenticatableUser;
 
 class JadwalController extends Controller
 {
@@ -34,7 +35,7 @@ class JadwalController extends Controller
         // 2. Ambil data untuk dropdown/pilihan di form
         $kelasList = Kelas::orderBy('nama')->get();
         $mapelList = Mapel::orderBy('nama')->get();
-        $guruList = User::where('role', 'guru')->orderBy('nama')->get(); // Sesuaikan query guru Anda
+        $guruList = AuthenticatableUser::where('role', 'guru')->orderBy('nama')->get(); // Sesuaikan query guru Anda
 
         return view('jadwal.create', compact('jadwals', 'kelasList', 'mapelList', 'guruList'));
     }

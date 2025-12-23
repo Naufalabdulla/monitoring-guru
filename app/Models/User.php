@@ -2,51 +2,24 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Contracts\UserInterface;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class User extends Authenticatable
+/**
+ * Class Abstract tidak bisa diinstansiasi langsung (new User)
+ */
+abstract class User extends Authenticatable implements UserInterface
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'nama',
-        'email',
-        'password',
-        'role',
-    ];
+    protected $table = 'users'; 
+    protected $fillable = ['nama', 'email', 'password', 'role'];
+    protected $hidden = ['password', 'remember_token'];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+    // Implementasi metode dari interface sesuai diagram
+    public function updateProfile(array $data) {
+        return $this->update($data);
     }
-    public function mapels() {
-    return $this->hasMany(Mapel::class, 'user_id');
-}
 }

@@ -1,27 +1,28 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\AuthenticatableUser;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Admin;
 
 class AdminGuruController extends Controller
 {
     public function index(Request $request)
-    {
-        $totalGuru = User::where('role', 'guru')->count();
-        $query = User::where('role', 'guru');
+{
+    // Ganti User::where menjadi Admin::where (merujuk tabel yang sama)
+    $totalGuru = Admin::where('role', 'guru')->count();
+    $query = Admin::where('role', 'guru');
 
-        if ($request->filled('search')) {
-            $query->where('nama', 'like', '%' . $request->search . '%')
-                ->orWhere('email', 'like', '%' . $request->search . '%');
-        }
-
-        // Gunakan pagination 20 data agar UI tetap rapi
-        $gurus = $query->latest()->paginate(20);
-
-        return view('admin.guru.index', compact('gurus', 'totalGuru'));
+    if ($request->filled('search')) {
+        $query->where('nama', 'like', '%' . $request->search . '%')
+              ->orWhere('email', 'like', '%' . $request->search . '%');
     }
+
+    $gurus = $query->latest()->paginate(20);
+    return view('admin.guru.index', compact('gurus', 'totalGuru'));
+}
 
     public function create()
     {
@@ -37,7 +38,7 @@ class AdminGuruController extends Controller
         ]);
 
         // Membuat akun baru dengan role guru
-        User::create([
+        AuthenticatableUser::create([
             'nama' => $request->nama,
             'email' => $request->email,
             'password' => \Illuminate\Support\Facades\Hash::make($request->password),
@@ -49,13 +50,13 @@ class AdminGuruController extends Controller
     public function edit($id)
     {
         // Mengambil data guru berdasarkan ID
-        $guru = User::findOrFail($id);
+        $guru = AuthenticatableUser::findOrFail($id);
         return view('admin.guru.edit', compact('guru'));
     }
 
     public function update(Request $request, $id)
 {
-    $guru = User::findOrFail($id);
+    $guru = AuthenticatableUser::findOrFail($id);
     
     // Validasi data
     $request->validate([
@@ -85,7 +86,7 @@ class AdminGuruController extends Controller
 }
     public function destroy($id)
     {
-        User::findOrFail($id)->delete();
+       AuthenticatableUser::findOrFail($id)->delete();
         return back()->with('success', 'Guru berhasil dihapus');
     }
 }

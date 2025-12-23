@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Materi;
 use App\Models\Mapel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Admin;
 
 class MateriController extends Controller
 {
@@ -36,49 +38,48 @@ class MateriController extends Controller
     }
     public function store(Request $request)
     {
-        $request->validate([
-            'nama' => 'required|string|max:255',
-            'mapel_id' => 'required|exists:mapels,id',
-            'deskripsi' => 'nullable|string',
-            'file_pendukung' => 'nullable|string',
-        ]);
+        $request->validate(['nama' => 'required', 'mapel_id' => 'required']);
 
-        Materi::create([
+        $materi = new Materi([
             'nama' => $request->nama,
             'mapel_id' => $request->mapel_id,
-            'deskripsi' => $request->deskripsi,
-            'file_pendukung' => $request->file_pendukung
+            'konten' => $request->deskripsi,
         ]);
 
-        // SESUAIKAN: Tambahkan 'guru.' pada nama route
-        return redirect()->route('guru.dashboard')->with('success', 'Materi berhasil dibuat');
+        if (Auth::user()->role === 'admin') {
+            $admin = Admin::find(Auth::id());
+            $admin->kelolaMateri($materi); // Admin mengelola materi
+        } else {
+            $materi->save();
+        }
+
+        return redirect()->route(Auth::user()->role . '.dashboard')->with('success', 'Materi dikelola sesuai diagram');
     }
 
-    public function edit(Materi $materi)
+    public function edit($id)
     {
+        $materi = Materi::getMateriById($id); // Metode statis dari diagram
         $mapels = Mapel::all();
         return view('guru.materi.edit', compact('materi', 'mapels'));
     }
+  public function update(Request $request, Materi $materi)
+{
+    $request->validate([
+        'nama' => 'required|string|max:255',
+        'mapel_id' => 'required|exists:mapels,id',
+        'deskripsi' => 'nullable|string',
+    ]);
 
-    public function update(Request $request, Materi $materi)
-    {
-        $request->validate([
-            'nama' => 'required|string|max:255',
-            'mapel_id' => 'required|exists:mapels,id',
-            'deskripsi' => 'nullable|string',
-            'file_pendukung' => 'nullable|string',
-        ]);
-        $materi->update([
-            'nama' => $request->nama,
-            'mapel_id' => $request->mapel_id,
-            'deskripsi' => $request->deskripsi,
-            'file_pendukung' => $request->file_pendukung
-        ]);
+    // Update menggunakan nama kolom 'deskripsi' agar tidak SQL Error
+    $materi->update([
+        'nama' => $request->nama,
+        'mapel_id' => $request->mapel_id,
+        'deskripsi' => $request->deskripsi, 
+        'file_pendukung' => $request->file_pendukung
+    ]);
 
-        // SESUAIKAN: Tambahkan 'guru.' pada nama route
-        return redirect()->route('guru.dashboard')->with('success', 'Materi berhasil diubah');
-    }
-
+    return redirect()->route('guru.materi.index')->with('success', 'Materi berhasil diperbarui');
+}
     public function destroy(Materi $materi)
     {
         $materi->delete();

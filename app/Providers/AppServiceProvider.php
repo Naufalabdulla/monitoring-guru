@@ -22,5 +22,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrapFive(); 
         \App\Models\Mapel::observe(\App\Observers\MapelObserver::class);
+        
     }
 }

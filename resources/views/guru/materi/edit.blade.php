@@ -37,10 +37,11 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Deskripsi Materi</label>
+                            {{-- Tambahkan isi di antara tag textarea --}}
                             <textarea name="deskripsi" class="form-control" rows="3"
-                                placeholder="Tambahkan penjelasan singkat..."></textarea>
+                                placeholder="Tambahkan penjelasan singkat...">{{ old('deskripsi', $materi->konten) }}</textarea>
+                            {{-- Gunakan $materi->konten sesuai atribut di Class Diagram --}}
                         </div>
-
                         <div class="mb-4">
                             <label class="form-label fw-semibold">File Pendukung (PDF/PNG)</label>
                             <input type="file" name="file_pendukung" class="form-control">

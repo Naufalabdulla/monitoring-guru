@@ -24,7 +24,8 @@ class MapelObserver
         $pertemuans[] = ['pertemuan' => 'Ujian Akhir'];
 
         foreach ($pertemuans as $p) {
-            $mapel->progressPembelajaran()->create([
+            // UBAH progressPembelajaran() MENJADI progress()
+            $mapel->progress()->create([
                 'pertemuan' => $p['pertemuan'],
                 'status' => 0
             ]);

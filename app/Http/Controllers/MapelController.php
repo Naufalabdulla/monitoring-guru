@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuthenticatableUser;
 use App\Models\Mapel;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -41,14 +42,14 @@ class MapelController extends Controller
 
     public function create()
     {
-        $gurus = User::where('role', 'guru')->get();
+        $gurus = AuthenticatableUser::where('role', 'guru')->get();
         $kelas = Kelas::all(); // Ambil semua data dari tabel kelas
         return view('admin.mapel.create', compact('gurus', 'kelas'));
     }
 
     public function edit(Mapel $mapel)
     {
-        $gurus = User::where('role', 'guru')->get();
+        $gurus = AuthenticatableUser::where('role', 'guru')->get();
         $kelas = Kelas::all();
         return view('admin.mapel.edit', compact('mapel', 'gurus', 'kelas'));
     }

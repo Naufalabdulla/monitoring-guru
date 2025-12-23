@@ -3,39 +3,59 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
-use App\Models\Kelas;
-use App\Models\Materi;
-use App\Models\ProgressPembelajaran;
-
-
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Mapel extends Model
 {
-    protected $fillable = ['nama', 'kelas_id', 'user_id'];
+    // Pastikan fillable mencakup foreign key
+    protected $fillable = ['nama', 'kelas_id', 'user_id', 'deskripsi'];
 
-    public function guru()
+    /**
+     * RELASI UTAMA: Menghubungkan Mapel ke Kelas
+     * Inilah yang dicari oleh AdminController::with(['kelas'])
+     */
+    public function kelas(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(Kelas::class, 'kelas_id');
     }
 
-    public function materis()
+    /**
+     * RELASI GURU: Menghubungkan Mapel ke User (Guru)
+     */
+   public function guru(): BelongsTo
     {
-        return $this->hasMany(Materi::class);
+        // PERBAIKAN: Gunakan class konkrit agar tidak error abstract
+        return $this->belongsTo(AuthenticatableUser::class, 'user_id');
     }
-    public function kelas()
+    /**
+     * RELASI MATERI: Sesuai komposisi di Class Diagram
+     */
+    public function materis(): HasMany
     {
-        return $this->belongsTo(Kelas::class);
+        return $this->hasMany(Materi::class, 'mapel_id');
     }
-    public function progress()
+
+    /**
+     * RELASI PROGRESS: Menghubungkan Mapel ke Tabel Progress
+     */
+    public function progress(): HasMany
     {
         return $this->hasMany(ProgressPembelajaran::class, 'mapel_id');
     }
 
-    public function getPersentaseAttribute()
-    {
-        $totalIndikator = 19; // 16 minggu + 3 ujian
-        $selesai = $this->progressPembelajaran()->where('status', 1)->count();
-        return ($selesai / $totalIndikator) * 100;
+    /*
+    |--------------------------------------------------------------------------
+    | Metode Tambahan Sesuai Class Diagram
+    |--------------------------------------------------------------------------
+    */
+    public static function getMapelById($id) { 
+        return self::find($id); 
+    }
+
+    public function getPersentaseAttribute() {
+        $total = 19; 
+        $selesai = $this->progress()->where('status', 1)->count();
+        return ($selesai / $total) * 100;
     }
 }
