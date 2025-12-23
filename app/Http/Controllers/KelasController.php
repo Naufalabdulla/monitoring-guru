@@ -7,11 +7,31 @@ use Illuminate\Http\Request;
 
 class KelasController extends Controller
 {
-    public function index() {
-        $kelas = Kelas::all();
-        return view('admin.kelas.index', compact('kelas'));
+   public function index(Request $request) 
+{
+    // Statistik Total Kelas
+    $totalKelas = Kelas::count();
+
+    // Query Dasar
+    $query = Kelas::query();
+
+    // Filter 1: Cari Nama Kelas
+    if ($request->filled('search')) {
+        $query->where('nama', 'like', '%' . $request->search . '%');
     }
 
+    // Filter 2: Tingkat (ENUM 10, 11, 12)
+    if ($request->filled('tingkat')) {
+        $query->where('tingkat', $request->tingkat);
+    }
+
+    // Paginate maksimal 20 data per halaman
+    $kelas = $query->orderBy('tingkat', 'asc')
+                  ->orderBy('nama', 'asc')
+                  ->paginate(20);
+
+    return view('admin.kelas.index', compact('kelas', 'totalKelas'));
+}
     public function create() {
         return view('admin.kelas.create');
     }

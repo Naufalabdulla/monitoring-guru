@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Guru\MapelGuruController;
 use App\Http\Controllers\Guru\ProgressGuruController;
+use App\Http\Controllers\AdminGuruController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -29,6 +30,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('mapel', MapelController::class);
     Route::resource('jadwal', JadwalController::class);
     Route::resource('kelas', KelasController::class);
+    Route::resource('guru', AdminGuruController::class);
 });
 
 
@@ -36,15 +38,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 Route::middleware(['auth', 'role:guru'])->prefix('guru')->name('guru.')->group(function () {
     Route::get('/dashboard', [GuruController::class, 'index'])->name('dashboard');
     Route::resource('/materi', MateriController::class);
+    Route::resource('/jadwal', JadwalController::class);
     Route::get('/mapel', [MapelGuruController::class, 'index'])->name('mapel.index');
-    Route::get('/progress', [ProgressGuruController::class, 'index'])
-        ->name('progress.index');
-
-    Route::get('/progress/{progress}/edit', [ProgressGuruController::class, 'edit'])
-        ->name('progress.edit');
-
-    Route::put('/progress/{progress}', [ProgressGuruController::class, 'update'])
-        ->name('progress.update');
+   Route::get('/progress/{mapel_id}', [ProgressGuruController::class, 'index'])->name('progress.index');
+    Route::put('/progress/{id}', [ProgressGuruController::class, 'update'])->name('progress.update');
 });
 
 Route::middleware('auth')->group(function () {

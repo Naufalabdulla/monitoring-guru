@@ -3,6 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
+use App\Models\Kelas;
+use App\Models\Materi;
+use App\Models\ProgressPembelajaran;
+
 
 
 class Mapel extends Model
@@ -21,5 +26,16 @@ class Mapel extends Model
     public function kelas()
     {
         return $this->belongsTo(Kelas::class);
+    }
+    public function progress()
+    {
+        return $this->hasMany(ProgressPembelajaran::class, 'mapel_id');
+    }
+
+    public function getPersentaseAttribute()
+    {
+        $totalIndikator = 19; // 16 minggu + 3 ujian
+        $selesai = $this->progressPembelajaran()->where('status', 1)->count();
+        return ($selesai / $totalIndikator) * 100;
     }
 }

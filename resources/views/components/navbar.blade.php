@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
   <div class="container">
-    <a class="navbar-brand fw-bold" href="#">
+    <a class="navbar-brand fw-bold" href="{{ url('/') }}">
       <i class="bi bi-person-check-fill me-2"></i>Monitoring Guru
     </a>
 
@@ -17,6 +17,10 @@
                 href="{{ route('admin.dashboard') }}">Dashboard</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link {{ request()->routeIs('admin.guru.*') ? 'active' : '' }}"
+                href="{{ route('admin.guru.index') }}">Data Guru</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link {{ request()->routeIs('admin.mapel.*') ? 'active' : '' }}"
                 href="{{ route('admin.mapel.index') }}">Data Mapel</a>
             </li>
@@ -24,9 +28,9 @@
               <a class="nav-link {{ request()->routeIs('admin.kelas.*') ? 'active' : '' }}"
                 href="{{ route('admin.kelas.index') }}">Data Kelas</a>
             </li>
-          
             <li class="nav-item">
-              <a class="nav-link" href="{{ route('admin.jadwal.index') }}">Jadwal</a>
+              <a class="nav-link {{ request()->routeIs('admin.jadwal.*') ? 'active' : '' }}"
+                href="{{ route('admin.jadwal.index') }}">Jadwal</a>
             </li>
           @else
             <li class="nav-item">
@@ -37,9 +41,12 @@
               <a class="nav-link {{ request()->routeIs('guru.materi.*') ? 'active' : '' }}"
                 href="{{ route('guru.materi.index') }}">Materi Saya</a>
             </li>
-             <li class="nav-item">
-              <a class="nav-link {{ request()->routeIs('guru.progress.*') ? 'active' : '' }}"
-                href="{{ route('guru.progress.index') }}">Progress Pembelajaran</a>
+            <li class="nav-item">
+              {{-- Arahkan ke guru.mapel.index (Daftar semua mapel) --}}
+              <a class="nav-link {{ request()->routeIs('guru.mapel.*') || request()->routeIs('guru.progress.*') ? 'active' : '' }}"
+                href="{{ route('guru.mapel.index') }}">
+                Mapel Saya
+              </a>
             </li>
           @endif
         @endauth
@@ -52,16 +59,14 @@
               data-bs-toggle="dropdown">
               <div
                 class="bg-light text-primary rounded-circle d-inline-flex align-items-center justify-content-center me-2"
-                style="width: 30px; height: 30px; font-size: 12px; fw-bold: 700;">
+                style="width: 30px; height: 30px; font-size: 12px; font-weight: bold;">
                 {{ strtoupper(substr(Auth::user()->nama, 0, 1)) }}
               </div>
               {{ Auth::user()->nama }}
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow border-0">
               <li>
-                <div class="dropdown-header">
-                  <strong>Role: {{ ucfirst(Auth::user()->role) }}</strong>
-                </div>
+                <div class="dropdown-header"><strong>Role: {{ ucfirst(Auth::user()->role) }}</strong></div>
               </li>
               <li>
                 <hr class="dropdown-divider">
@@ -70,22 +75,19 @@
                 <a class="dropdown-item {{ request()->routeIs('profile.edit') ? 'active' : '' }}"
                   href="{{ route('profile.edit') }}">
                   <i class="bi bi-person me-2"></i>Profil Saya
+                </a>
               </li>
               <li>
                 <a class="dropdown-item text-danger" href="#"
                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                   <i class="bi bi-box-arrow-right me-2"></i>Keluar
                 </a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                  @csrf
-                </form>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
               </li>
             </ul>
           </li>
         @else
-          <li class="nav-item">
-            <a class="nav-link" href="{{ route('login') }}">Login</a>
-          </li>
+          <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Login</a></li>
         @endauth
       </ul>
     </div>

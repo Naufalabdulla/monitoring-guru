@@ -1,56 +1,47 @@
 @extends('layouts.master')
 
 @section('content')
-<div class="container">
-    <h3 class="mb-4">Progress Pembelajaran</h3>
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h4 class="fw-bold text-primary mb-0">Progress: {{ $mapel->nama }}</h4>
+                    <p class="text-muted small">Kelas: {{ $mapel->kelas->nama }}</p>
+                </div>
+                <a href="{{ route('guru.dashboard') }}" class="btn btn-outline-secondary btn-sm">Kembali</a>
+            </div>
 
-    @if(session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if($progresses->isEmpty())
-        <div class="alert alert-info">
-            Belum ada progress pembelajaran.
-        </div>
-    @else
-        <div class="card">
-            <div class="card-body">
-                <table class="table table-bordered table-striped">
-                    <thead>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
                         <tr>
-                            <th>No</th>
-                            <th>Tanggal</th>
-                            <th>Kelas</th>
-                            <th>Mapel</th>
-                            <th>Materi</th>
-                            <th>Status</th>
-                            <th>Aksi</th>
+                            <th width="150">Pertemuan</th>
+                            <th>Topik / Materi Pembahasan</th>
+                            <th class="text-center" width="150">Status Selesai</th>
+                            <th class="text-center" width="100">Simpan</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($progresses as $index => $p)
+                        @foreach($progressItems as $item)
                             <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ $p->tanggal }}</td>
-                                <td>{{ $p->jadwal->kelas->nama ?? '-' }}</td>
-                                <td>{{ $p->jadwal->mapel->nama ?? '-' }}</td>
-                                <td>{{ $p->materi }}</td>
+                                <td class="fw-bold">{{ $item->pertemuan }}</td>
                                 <td>
-                                    <span class="badge 
-                                        @if($p->status === 'selesai') bg-success
-                                        @elseif($p->status === 'proses') bg-warning
-                                        @else bg-secondary
-                                        @endif">
-                                        {{ ucfirst($p->status) }}
-                                    </span>
+                                    <input type="text" form="form-{{ $item->id }}" name="materi"
+                                        class="form-control form-control-sm" value="{{ $item->materi }}"
+                                        placeholder="Input topik pembahasan...">
                                 </td>
-                                <td>
-                                    <a href="{{ route('guru.progress.edit', $p->id) }}" 
-                                       class="btn btn-sm btn-warning">
-                                        Update
-                                    </a>
+                                <td class="text-center">
+                                    <div class="form-check form-switch d-inline-block">
+                                        <input class="form-check-input" type="checkbox" form="form-{{ $item->id }}"
+                                            name="status" value="1" {{ $item->status ? 'checked' : '' }}>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <form id="form-{{ $item->id }}" action="{{ route('guru.progress.update', $item->id) }}"
+                                        method="POST">
+                                        @csrf @method('PUT')
+                                        <button type="submit" class="btn btn-sm btn-primary">Simpan</button>
+                                    </form>
                                 </td>
                             </tr>
                         @endforeach
@@ -58,6 +49,5 @@
                 </table>
             </div>
         </div>
-    @endif
-</div>
+    </div>
 @endsection

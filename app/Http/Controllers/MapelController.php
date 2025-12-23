@@ -9,12 +9,35 @@ use App\Models\Kelas;
 
 class MapelController extends Controller
 {
-    public function index()
-    {
-        $mapels = Mapel::with('guru')->get();
-        // SESUAIKAN: Path view harus ke admin.mapel.index
-        return view('admin.mapel.index', compact('mapels'));
+    public function index(Request $request)
+{
+    // Menghitung Total Mata Pelajaran Unik (tetap dihitung dari semua data)
+    $totalMapelUnique = Mapel::distinct('nama')->count('nama');
+    
+
+    // 2. Hitung TOTAL SELURUH RECORD (Dinamis, tidak manual lagi)
+    $totalMapelTerdaftar = Mapel::count();
+
+    // Mulai Query dengan Eager Loading
+    $query = Mapel::with(['kelas', 'guru']);
+
+    // Filter 1: Berdasarkan Nama Mapel (Search)
+    if ($request->filled('search')) {
+        $query->where('nama', 'like', '%' . $request->search . '%');
     }
+
+    // Filter 2: Berdasarkan Tingkat (Cek ke relasi tabel kelas)
+    if ($request->filled('tingkat')) {
+        $query->whereHas('kelas', function($q) use ($request) {
+            $q->where('tingkat', $request->tingkat);
+        });
+    }
+
+    // Eksekusi dengan Pagination 20 data per halaman
+    $mapels = $query->latest()->paginate(20);
+
+    return view('admin.mapel.index', compact('mapels', 'totalMapelUnique', 'totalMapelTerdaftar'));
+}
 
     public function create()
     {
@@ -45,7 +68,7 @@ class MapelController extends Controller
         ]);
 
         // SESUAIKAN: Tambahkan 'admin.' pada nama route
-        return redirect()->route('admin.dashboard')->with('success', 'Mapel berhasil ditambah');
+        return redirect()->route('admin.mapel.index')->with('success', 'Mapel berhasil ditambah');
     }
 
 
