@@ -14,23 +14,37 @@ use Illuminate\Support\Facades\{Hash, Auth};
 
 class AdminController extends Controller
 {
-    public function index(Request $request)
+  public function index(Request $request)
 {
-    // Gunakan Admin:: (class konkrit) alih-alih User:: (class abstract)
+    // Pastikan admin ditemukan
     $admin = Admin::find(Auth::id());
     
-    // Perbaikan Baris 20: Ganti User:: menjadi Admin:: atau Guru::
-    $totalGuru = Admin::where('role', 'guru')->count(); 
+    // Jika $admin null (misal session habis), proteksi agar tidak error
+    if (!$admin) {
+        return redirect()->route('login');
+    }
+
+    $totalGuru = Guru::where('role', 'guru')->count(); 
     $totalKelas = Kelas::count();
     $totalMapelUnique = Mapel::distinct('nama')->count('nama');
     $totalMapelTerdaftar = Mapel::count();
 
-    $listGuru = $admin->daftar_guru; 
+    // PERBAIKAN DI SINI:
+    // Ambil semua data guru untuk dropdown filter di dashboard
+    $listGuru = Guru::where('role', 'guru')->orderBy('nama')->get(); 
+    
     $listKelas = Kelas::orderBy('tingkat')->get();
 
     $query = Mapel::with(['kelas', 'guru', 'progress']);
     
-    // ... sisa kode filter tetap sama ...
+    // Logic filter (jika ada)
+    if ($request->filled('guru_id')) {
+        $query->where('user_id', $request->guru_id);
+    }
+    if ($request->filled('kelas_id')) {
+        $query->where('kelas_id', $request->kelas_id);
+    }
+
     $mapels = $query->latest()->paginate(25);
 
     return view('admin.dashboard', compact(

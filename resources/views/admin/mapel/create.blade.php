@@ -24,7 +24,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Pilih Guru</label>
-                        <select name="user_id" class="form-select" required>
+                        <select name="guru_id" class="form-select" required>
                             <option value="">-- Pilih Guru --</option>
                             @foreach($gurus as $guru)
                                 <option value="{{ $guru->id }}">{{ $guru->nama }}</option>

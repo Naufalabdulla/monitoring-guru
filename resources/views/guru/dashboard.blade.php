@@ -73,9 +73,11 @@
                                         @foreach($jadwalMingguan[$hari] as $j)
                                             <div class="bg-white p-2 rounded shadow-sm mb-2 border-start border-3 border-primary"
                                                 style="font-size: 0.75rem;">
-                                                <strong>{{ $j->mapel->nama }}</strong><br>
-                                                {{ $j->jam_mulai }} - {{ $j->jam_selesai }}<br>
-                                                <span class="badge bg-secondary">Kelas {{ $j->kelas->nama }}</span>
+                                                <strong>{{ $j->mapel?->nama ?? '-' }}</strong><br>
+                                                <span class="badge bg-secondary">Kelas {{ $j->kelas?->nama ?? '-' }}</span>
+                                                <br>
+                                                {{ \Carbon\Carbon::parse($j->jam_mulai)->format('H:i') }} -
+                                                {{ \Carbon\Carbon::parse($j->jam_selesai)->format('H:i') }}
                                             </div>
                                         @endforeach
                                     @else

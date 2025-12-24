@@ -2,62 +2,77 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+use App\Models\Admin;
+use App\Models\Guru;
 use App\Models\Jadwal;
 use App\Models\Kelas;
 use App\Models\Mapel;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Foundation\Auth\User as AuthenticatableUser;
 
 class JadwalController extends Controller
 {
-    /**
-     * Menampilkan daftar jadwal
-     */
     public function index(Request $request)
     {
-        $jadwals = Jadwal::with(['kelas', 'mapel', 'guru'])
-            ->orderBy('hari')
+        $query = Jadwal::with(['kelas', 'mapel', 'guru']);
+
+        if ($request->filled('hari')) {
+            $query->where('hari', $request->hari);
+        }
+        if ($request->filled('kelas_id')) {
+            $query->where('kelas_id', $request->kelas_id);
+        }
+        if ($request->filled('guru_id')) {
+            $query->where('guru_id', $request->guru_id);
+        }
+
+        $jadwals = $query->orderBy('hari')
             ->orderBy('jam_mulai')
             ->paginate(10);
 
-        return view('jadwal.index', compact('jadwals'));
+        $kelasList = Kelas::orderBy('tingkat')->orderBy('nama')->get();
+        $guruList  = Guru::orderBy('nama')->get(); // ✅ pakai Guru konkrit
+
+        return view('jadwal.index', compact('jadwals', 'kelasList', 'guruList'));
     }
 
-    /**
-     * Menampilkan form tambah jadwal
-     */
     public function create()
     {
-        // 1. Ambil semua data jadwal untuk ditampilkan di tabel bawah form
-        $jadwals = Jadwal::with(['kelas', 'mapel', 'guru'])->orderBy('created_at', 'desc')->get();
-
-        // 2. Ambil data untuk dropdown/pilihan di form
-        $kelasList = Kelas::orderBy('nama')->get();
-        $mapelList = Mapel::orderBy('nama')->get();
-        $guruList = AuthenticatableUser::where('role', 'guru')->orderBy('nama')->get(); // Sesuaikan query guru Anda
+        $jadwals   = Jadwal::with(['kelas', 'mapel', 'guru'])->latest()->get();
+        $kelasList = Kelas::orderBy('tingkat')->orderBy('nama')->get();
+        $mapelList = Mapel::orderBy('nama')->get()->unique('nama');
+        $guruList  = Guru::orderBy('nama')->get(); // ✅ pakai Guru konkrit
 
         return view('jadwal.create', compact('jadwals', 'kelasList', 'mapelList', 'guruList'));
     }
 
-    /**
-     * Menyimpan jadwal ke database
-     */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'kelas_id' => '',
-            'mapel_id' => '',
-            'guru_id' => '',
-            'hari' => 'required|string',
-            'jam_mulai' => 'required|date_format:H:i',
+        $request->validate([
+            'kelas_id'    => 'required|exists:kelas,id',
+            'mapel_id'    => 'required|exists:mapels,id',
+            'guru_id'     => 'required|exists:users,id', // kalau guru ada di tabel users
+            'hari'        => 'required|string',
+            'jam_mulai'   => 'required|date_format:H:i',
             'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
         ]);
 
-        Jadwal::create($validated);
+        $admin = Admin::findOrFail(Auth::id());
 
-        return redirect()
-            ->route('admin.jadwal.index')
-            ->with('success', 'Jadwal berhasil ditambahkan');
+        $jadwal = new Jadwal([
+            'kelas_id'    => $request->kelas_id,
+            'mapel_id'    => $request->mapel_id,
+            'guru_id'     => $request->guru_id,
+            'hari'        => $request->hari,
+            'jam_mulai'   => $request->jam_mulai,
+            'jam_selesai' => $request->jam_selesai,
+        ]);
+
+        // ✅ sesuai style kamu: Admin yang “kelola”
+        $admin->kelolaJadwal($jadwal);
+
+        return redirect()->route('admin.jadwal.index')
+            ->with('success', 'Jadwal berhasil ditambahkan (tanpa User abstract)');
     }
 }

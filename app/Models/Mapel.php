@@ -5,11 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Guru;
 
 class Mapel extends Model
 {
     // Pastikan fillable mencakup foreign key
-    protected $fillable = ['nama', 'kelas_id', 'user_id', 'deskripsi'];
+    protected $fillable = ['nama', 'kelas_id', 'user_id'];
 
     /**
      * RELASI UTAMA: Menghubungkan Mapel ke Kelas
@@ -26,7 +27,7 @@ class Mapel extends Model
    public function guru(): BelongsTo
     {
         // PERBAIKAN: Gunakan class konkrit agar tidak error abstract
-        return $this->belongsTo(AuthenticatableUser::class, 'user_id');
+        return $this->belongsTo(Guru::class, 'user_id');
     }
     /**
      * RELASI MATERI: Sesuai komposisi di Class Diagram

@@ -26,10 +26,13 @@
                             {{-- Jika Guru bebas memilih Mapel (dari Index Materi) --}}
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Pilih Mata Pelajaran</label>
-                                <select name="mapel_id" class="form-select @error('mapel_id') is-invalid @enderror" required>
-                                    <option value="" selected disabled>-- Pilih Mapel --</option>
+                                <select name="mapel_id" class="form-select" required>
+                                    <option value="" disabled selected>-- Pilih Mapel --</option>
                                     @foreach($mapels as $m)
-                                        <option value="{{ $m->id }}">{{ $m->nama }}</option>
+                                        <option value="{{ $m->id }}" {{ (isset($materi) && $materi->mapel_id == $m->id) ? 'selected' : '' }}>
+                                            {{-- Menggabungkan nama mapel dan nama kelas --}}
+                                            {{ $m->nama }} - ({{ $m->kelas->nama ?? 'Kelas Tidak Ditemukan' }})
+                                        </option>
                                     @endforeach
                                 </select>
                                 @error('mapel_id') <div class="invalid-feedback">{{ $message }}</div> @enderror

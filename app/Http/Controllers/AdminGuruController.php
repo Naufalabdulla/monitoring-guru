@@ -1,28 +1,32 @@
 <?php
+
 namespace App\Http\Controllers;
 
-use App\Models\AuthenticatableUser;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+
+// Import Model yang sudah kita buat
 use App\Models\Admin;
+use App\Models\Guru; 
 
 class AdminGuruController extends Controller
 {
     public function index(Request $request)
-{
-    // Ganti User::where menjadi Admin::where (merujuk tabel yang sama)
-    $totalGuru = Admin::where('role', 'guru')->count();
-    $query = Admin::where('role', 'guru');
+    {
+        $totalGuru = Guru::where('role', 'guru')->count();
+        $query = Guru::where('role', 'guru');
 
-    if ($request->filled('search')) {
-        $query->where('nama', 'like', '%' . $request->search . '%')
-              ->orWhere('email', 'like', '%' . $request->search . '%');
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('nama', 'like', '%' . $request->search . '%')
+                  ->orWhere('email', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $gurus = $query->latest()->paginate(20);
+        return view('admin.guru.index', compact('gurus', 'totalGuru'));
     }
-
-    $gurus = $query->latest()->paginate(20);
-    return view('admin.guru.index', compact('gurus', 'totalGuru'));
-}
 
     public function create()
     {
@@ -37,56 +41,69 @@ class AdminGuruController extends Controller
             'password' => 'required|min:6|confirmed',
         ]);
 
-        // Membuat akun baru dengan role guru
-        AuthenticatableUser::create([
-            'nama' => $request->nama,
-            'email' => $request->email,
-            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
-            'role' => 'guru',
+        // Ambil admin yang sedang login
+        $admin = Admin::find(Auth::id());
+
+        // Buat instance Guru baru (tapi jangan save() di sini)
+        $guru = new Guru([
+            'nama'     => $request->nama,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password),
+            'role'     => 'guru',
         ]);
+
+        // Serahkan proses simpan ke Model Admin (Sesuai UML)
+        $admin->kelolaGuru($guru);
 
         return redirect()->route('admin.guru.index')->with('success', 'Akun Guru berhasil dibuat.');
     }
+
     public function edit($id)
     {
-        // Mengambil data guru berdasarkan ID
-        $guru = AuthenticatableUser::findOrFail($id);
+        $guru = Guru::findOrFail($id);
         return view('admin.guru.edit', compact('guru'));
     }
 
     public function update(Request $request, $id)
-{
-    $guru = AuthenticatableUser::findOrFail($id);
-    
-    // Validasi data
-    $request->validate([
-        'nama' => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email,' . $id,
-        'password_lama' => 'required', // Wajib diisi untuk verifikasi
-        'password' => 'nullable|min:6|confirmed', // Password baru bersifat opsional
-    ]);
+    {
+        // Cari data guru
+        $guru = Guru::findOrFail($id);
+        $admin = Admin::find(Auth::id());
 
-    // 1. Verifikasi apakah password lama benar
-    if (!\Illuminate\Support\Facades\Hash::check($request->password_lama, $guru->password)) {
-        return back()->withErrors(['password_lama' => 'Password lama yang Anda masukkan salah.'])->withInput();
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $id,
+            'password_lama' => 'required',
+            'password' => 'nullable|min:6|confirmed',
+        ]);
+
+        // 1. Verifikasi Password Lama
+        if (!Hash::check($request->password_lama, $guru->password)) {
+            return back()->withErrors(['password_lama' => 'Password lama salah.'])->withInput();
+        }
+
+        // 2. Isi data baru ke objek (belum simpan ke DB)
+        $guru->nama = $request->nama;
+        $guru->email = $request->email;
+
+        if ($request->filled('password')) {
+            $guru->password = Hash::make($request->password);
+        }
+
+        // 3. Simpan lewat Admin
+        $admin->kelolaGuru($guru);
+
+        return redirect()->route('admin.guru.index')->with('success', 'Data guru berhasil diperbarui.');
     }
 
-    // 2. Update Nama dan Email
-    $guru->nama = $request->nama;
-    $guru->email = $request->email;
-
-    // 3. Update Password Baru jika diisi
-    if ($request->filled('password')) {
-        $guru->password = \Illuminate\Support\Facades\Hash::make($request->password);
-    }
-
-    $guru->save();
-
-    return redirect()->route('admin.guru.index')->with('success', 'Data guru berhasil diperbarui.');
-}
     public function destroy($id)
     {
-       AuthenticatableUser::findOrFail($id)->delete();
+        $admin = Admin::find(Auth::id());
+        $guru = Guru::findOrFail($id);
+        
+        // Gunakan method hapus dari Admin
+        $admin->hapusGuru($guru);
+        
         return back()->with('success', 'Guru berhasil dihapus');
     }
 }

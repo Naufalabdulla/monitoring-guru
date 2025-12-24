@@ -2,95 +2,104 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AuthenticatableUser;
-use App\Models\Mapel;
-use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+use App\Models\Admin;
+use App\Models\Guru;
+use App\Models\Mapel;
 use App\Models\Kelas;
 
 class MapelController extends Controller
 {
     public function index(Request $request)
-{
-    // Menghitung Total Mata Pelajaran Unik (tetap dihitung dari semua data)
-    $totalMapelUnique = Mapel::distinct('nama')->count('nama');
-    
+    {
+        $totalMapelUnique    = Mapel::distinct('nama')->count('nama');
+        $totalMapelTerdaftar = Mapel::count();
 
-    // 2. Hitung TOTAL SELURUH RECORD (Dinamis, tidak manual lagi)
-    $totalMapelTerdaftar = Mapel::count();
+        $query = Mapel::with(['kelas', 'guru']);
 
-    // Mulai Query dengan Eager Loading
-    $query = Mapel::with(['kelas', 'guru']);
+        if ($request->filled('search')) {
+            $query->where('nama', 'like', '%' . $request->search . '%');
+        }
 
-    // Filter 1: Berdasarkan Nama Mapel (Search)
-    if ($request->filled('search')) {
-        $query->where('nama', 'like', '%' . $request->search . '%');
+        if ($request->filled('tingkat')) {
+            $query->whereHas('kelas', fn($q) => $q->where('tingkat', $request->tingkat));
+        }
+
+        $mapels = $query->latest()->paginate(20);
+
+        return view('admin.mapel.index', compact('mapels', 'totalMapelUnique', 'totalMapelTerdaftar'));
     }
-
-    // Filter 2: Berdasarkan Tingkat (Cek ke relasi tabel kelas)
-    if ($request->filled('tingkat')) {
-        $query->whereHas('kelas', function($q) use ($request) {
-            $q->where('tingkat', $request->tingkat);
-        });
-    }
-
-    // Eksekusi dengan Pagination 20 data per halaman
-    $mapels = $query->latest()->paginate(20);
-
-    return view('admin.mapel.index', compact('mapels', 'totalMapelUnique', 'totalMapelTerdaftar'));
-}
 
     public function create()
     {
-        $gurus = AuthenticatableUser::where('role', 'guru')->get();
-        $kelas = Kelas::all(); // Ambil semua data dari tabel kelas
-        return view('admin.mapel.create', compact('gurus', 'kelas'));
-    }
+        $gurus = Guru::orderBy('nama')->get(); // ✅ pakai Guru konkrit
+        $kelas = Kelas::orderBy('tingkat')->orderBy('nama')->get();
 
-    public function edit(Mapel $mapel)
-    {
-        $gurus = AuthenticatableUser::where('role', 'guru')->get();
-        $kelas = Kelas::all();
-        return view('admin.mapel.edit', compact('mapel', 'gurus', 'kelas'));
+        return view('admin.mapel.create', compact('gurus', 'kelas'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'nama' => 'required',
-            'kelas_id' => 'required',
-            'user_id' => 'required|exists:users,id'
+            'nama'     => 'required|string|max:255',
+            'kelas_id' => 'required|exists:kelas,id',
+            'guru_id'  => 'required|exists:users,id', // kalau guru disimpan di users
         ]);
 
-        Mapel::create([
-            'nama' => $request->nama,
+        $admin = Admin::findOrFail(Auth::id());
+
+        $mapel = new Mapel([
+            'nama'     => $request->nama,
             'kelas_id' => $request->kelas_id,
-            'user_id' => $request->user_id
+            'user_id'  => $request->user_id, // relasi guru biasanya user_id
         ]);
 
-        // SESUAIKAN: Tambahkan 'admin.' pada nama route
-        return redirect()->route('admin.mapel.index')->with('success', 'Mapel berhasil ditambah');
+        $admin->kelolaMapel($mapel);
+
+        return redirect()->route('admin.mapel.index')
+            ->with('success', 'Mapel berhasil dibuat (tanpa User abstract)');
     }
 
-
-    public function update(Request $request, Mapel $mapel)
+    public function edit(Mapel $mapel)
     {
-        $request->validate([
-            'nama' => 'required',
-            'tingkat_kelas' => 'required',
-            'user_id' => 'required|exists:users,id'
-        ]);
+        $gurus = Guru::orderBy('nama')->get();
+        $kelas = Kelas::orderBy('tingkat')->orderBy('nama')->get();
 
-        $mapel->update($request->all());
-
-        // SESUAIKAN: Tambahkan 'admin.' pada nama route
-        return redirect()->route('admin.dashboard')->with('success', 'Mapel berhasil diupdate');
+        return view('admin.mapel.edit', compact('mapel', 'gurus', 'kelas'));
     }
 
-    // Gunakan Model Binding agar lebih aman dan ringkas
+    // app/Http/Controllers/MapelController.php
+
+
+
+public function update(Request $request, Mapel $mapel)
+{
+    $request->validate([
+        'nama'     => 'required|string|max:255',
+        'kelas_id' => 'required|exists:kelas,id',
+        'guru_id'  => 'required|exists:users,id',
+    ]);
+
+    $admin = Admin::findOrFail(Auth::id());
+
+    // PERBAIKAN: Gunakan guru_id agar data tersimpan
+    $mapel->nama     = $request->nama;
+    $mapel->kelas_id = $request->kelas_id;
+    $mapel->user_id  = $request->guru_id; 
+
+    $admin->kelolaMapel($mapel);
+
+    return redirect()->route('admin.mapel.index')
+        ->with('success', 'Mapel berhasil diupdate');
+}
+
     public function destroy(Mapel $mapel)
     {
-        $mapel->delete();
+        $admin = Admin::findOrFail(Auth::id());
+        $admin->hapusMapel($mapel);
+
         return back()->with('success', 'Mapel dihapus');
     }
 }
