@@ -36,24 +36,14 @@ class KelasController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'nama'    => 'required|unique:kelas,nama',
-            'tingkat' => 'required'
-        ]);
-
         $admin = Admin::findOrFail(Auth::id());
+        $kelas = new Kelas(['nama' => $request->nama, 'tingkat' => $request->tingkat]);
 
-        $kelas = new Kelas([
-            'nama' => $request->nama,
-            'tingkat' => $request->tingkat,
-        ]);
-
+        // Delegasi: Admin memanggil kelolaKelas, kelolaKelas memanggil createKelas
         $admin->kelolaKelas($kelas);
 
-        return redirect()->route('admin.kelas.index')
-            ->with('success', 'Kelas berhasil ditambah (via Admin UML)');
+        return redirect()->route('admin.kelas.index')->with('success', 'Kelas berhasil ditambah');
     }
-
     public function edit(Kelas $kela)
     {
         return view('admin.kelas.edit', compact('kela'));
@@ -62,7 +52,7 @@ class KelasController extends Controller
     public function update(Request $request, Kelas $kela)
     {
         $request->validate([
-            'nama'    => 'required|unique:kelas,nama,' . $kela->id,
+            'nama' => 'required|unique:kelas,nama,' . $kela->id,
             'tingkat' => 'required'
         ]);
 

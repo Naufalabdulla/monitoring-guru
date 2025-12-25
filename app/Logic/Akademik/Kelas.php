@@ -4,11 +4,11 @@ namespace App\Logic\Akademik;
 
 class Kelas
 {
-    protected string $idKelas;
-    protected string $namaKelas;
+    private string $idKelas;
+    private string $namaKelas;
 
     /** @var Kelas[] */
-    protected array $infoKelas = [];
+    private array $infoKelas = [];
 
     public function __construct(string $idKelas, string $namaKelas)
     {

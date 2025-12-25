@@ -5,4 +5,16 @@ namespace App\Models;
 class AuthenticatableUser extends User 
 {
     protected $table = 'users';
+
+    /**
+     * IMPLEMENTASI WAJIB (Agar tidak merah)
+     * Memberikan nilai default untuk user umum yang login
+     */
+    public function getDashboardRoute(): string {
+        return 'login'; // Default kembali ke login jika role tidak jelas
+    }
+
+    public function getSidebarRoleName(): string {
+        return 'User Terautentikasi';
+    }
 }

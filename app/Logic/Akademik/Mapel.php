@@ -2,71 +2,26 @@
 
 namespace App\Logic\Akademik;
 
+use Illuminate\Support\Collection;
+
 class Mapel
 {
-    protected string $idMapel;
-    protected string $namaMapel;
-    protected string $deskripsi;
+    private string $idMapel;
+    private string $namaMapel;
+    private string $deskripsi;
+    private Collection $daftarMateri; // Komposisi ArrayList<Materi>
 
-    /** @var Materi[] */
-    protected array $daftarMateri = [];
-
-    public function __construct(
-        string $idMapel,
-        string $namaMapel,
-        string $deskripsi
-    ) {
-        $this->idMapel   = $idMapel;
-        $this->namaMapel = $namaMapel;
-        $this->deskripsi = $deskripsi;
+    public function __construct(string $id, string $nama, string $desc) {
+        $this->idMapel = $id;
+        $this->namaMapel = $nama;
+        $this->deskripsi = $desc;
+        $this->daftarMateri = collect();
     }
 
-    // ======================
-    // Getter (Encapsulation)
-    // ======================
-    public function getIdMapel(): string
-    {
-        return $this->idMapel;
-    }
-
-    public function getNamaMapel(): string
-    {
-        return $this->namaMapel;
-    }
-
-    public function getDeskripsi(): string
-    {
-        return $this->deskripsi;
-    }
-
-    // ======================
-    // Relasi Mapel -> Materi
-    // ======================
-    public function tambahMateri(Materi $materi): void
-    {
-        $this->daftarMateri[] = $materi;
-    }
-
-    /** @return Materi[] */
-    public function cariMateri(string $keyword): array
-    {
-        $hasil = [];
-
-        foreach ($this->daftarMateri as $materi) {
-            if (stripos($materi->getJudul(), $keyword) !== false) {
-                $hasil[] = $materi;
-            }
-        }
-
-        return $hasil;
-    }
-
-    // ======================
-    // Simulasi operasi CRUD
-    // ======================
-    public function updateMapel(Mapel $mapel): void
-    {
-        $this->namaMapel = $mapel->namaMapel;
-        $this->deskripsi = $mapel->deskripsi;
+    // + cariMateri(keyword: String): ArrayList<Materi>
+    public function cariMateri(string $keyword): array {
+        return $this->daftarMateri->filter(function($m) use ($keyword) {
+            return stripos($m->getJudul(), $keyword) !== false;
+        })->all();
     }
 }

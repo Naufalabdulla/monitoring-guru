@@ -24,13 +24,13 @@ class AuthController extends Controller
 
     if (Auth::attempt($credentials)) {
         $request->session()->regenerate();
-        $user = Auth::user();
-
-        // Redirect spesifik berdasarkan role untuk memutus loop
-        if ($user->role === 'admin') {
-            return redirect()->route('admin.dashboard');
-        } 
-        return redirect()->route('guru.dashboard');
+        
+        /** * KONSEP POLIMORFISME (Dynamic Binding):
+         * Kita memanggil getDashboardRoute(). Laravel secara otomatis akan menjalankan
+         * fungsi milik Admin jika yang login Admin, atau milik Guru jika yang login Guru.
+         * Tidak perlu lagi cek IF-ELSE berdasarkan role.
+         */
+        return redirect()->route(Auth::user()->getDashboardRoute()); 
     }
 
     return back()->withErrors(['email' => 'Email atau password salah!']);

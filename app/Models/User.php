@@ -16,9 +16,11 @@ abstract class User extends Authenticatable implements UserInterface
 
     protected $table = 'users'; 
     protected $fillable = ['nama', 'email', 'password', 'role'];
-    protected $hidden = ['password', 'remember_token'];
 
-    // Implementasi metode dari interface sesuai diagram
+    // Method Polimorfik: dideklarasikan di parent, diisi di anak
+    abstract public function getDashboardRoute(): string;
+    abstract public function getSidebarRoleName(): string;
+
     public function updateProfile(array $data) {
         return $this->update($data);
     }

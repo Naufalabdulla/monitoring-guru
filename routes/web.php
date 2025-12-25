@@ -46,12 +46,13 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
-    
+    Route::get('/progress/{mapel_id}', [AdminController::class, 'showProgress'])->name('progress.show');
     // Resource untuk manajemen data (Admin mengatur semuanya)
     Route::resource('mapel', MapelController::class);
     Route::resource('jadwal', JadwalController::class);
     Route::resource('kelas', KelasController::class);
     Route::resource('guru', AdminGuruController::class);
+
 });
 
 /*

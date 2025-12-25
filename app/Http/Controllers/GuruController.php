@@ -2,41 +2,34 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\{Guru, Jadwal, Materi};
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\App;
+use App\Models\{Guru, Jadwal, Materi, Kelas, Mapel};
+use Illuminate\Support\Facades\{Auth, App};
 use Carbon\Carbon;
+
 
 class GuruController extends Controller
 {
     public function index()
-    {
-        App::setLocale('id');
+{
+    $guruId = Auth::id();
+    $hariIni = \Carbon\Carbon::now()->translatedFormat('l');
 
-        // Ambil Guru KONKRIT
-        $guru = Guru::findOrFail(Auth::id());
+    // 1. Data Mapel & Progress
+    $myMapels = Mapel::where('user_id', $guruId)->with(['kelas', 'progress'])->get();
 
-        $hariIni = Carbon::now()->translatedFormat('l');
+    // 2. Statistik
+    $totalMapel = $myMapels->count();
+    $totalKelas = Kelas::whereHas('mapels', fn($q) => $q->where('user_id', $guruId))->count();
+    $totalMateri = Materi::whereHas('mapel', fn($q) => $q->where('user_id', $guruId))->count();
 
-        // === UML METHOD ===
-        $myMapels = $guru->lihatDaftarMapel();
-        $jadwalHariIni = $guru->lihatJadwalHariIni($hariIni);
-        $jadwalMingguan = $guru->lihatJadwalMingguan();
+    // 3. Jadwal Mingguan
+    $jadwalRaw = Jadwal::where('guru_id', $guruId)->with(['mapel', 'kelas'])->get();
+    $jadwalMingguan = $jadwalRaw->groupBy('hari');
+    $jadwalHariIni = $jadwalRaw->where('hari', $hariIni);
 
-        $mapelIds = $myMapels->pluck('id');
-
-        $totalMapel  = $myMapels->count();
-        $totalKelas  = $myMapels->pluck('kelas_id')->unique()->count();
-        $totalMateri = Materi::whereIn('mapel_id', $mapelIds)->count();
-
-        return view('guru.dashboard', compact(
-            'myMapels',
-            'jadwalHariIni',
-            'jadwalMingguan',
-            'totalMapel',
-            'totalKelas',
-            'totalMateri',
-            'hariIni'
-        ));
-    }
+    return view('guru.dashboard', compact(
+        'myMapels', 'totalMapel', 'totalKelas', 'totalMateri', 
+        'jadwalMingguan', 'jadwalHariIni', 'hariIni'
+    ));
+}
 }
